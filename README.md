@@ -4,6 +4,8 @@ Go-codenames is a [Go](https://golang.org) implementation of the board game [Cod
 
 Check out [quibbble.com](https://quibbble.com/codenames) if you wish to view and play a live version of this game which utilizes this project along with a separate custom UI.
 
+[![Quibbble Codenames](https://i.imgur.com/srpxcFR.png)](https://quibbble.com/codenames)
+
 ## Usage
 
 To play a game create a new Codenames instance:
