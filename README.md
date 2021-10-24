@@ -19,7 +19,7 @@ err := game.Do(bg.BoardGameAction{
     Team: "TeamA",
     ActionType: "FlipCard",
     MoreDetails: FlipCardActionDetails{
-        Row: 0,    // columns 0 to 4 are valid
+        Row: 0,    // rows 0 to 4 are valid
         Column: 0, // columns 0 to 4 are valid
     },
 })
@@ -31,6 +31,7 @@ err := game.Do(bg.BoardGameAction{
     Team: "TeamA",
     ActionType: "EndTurn",
 })
+```
 
 To get the current state of the game call the following:
 ```go
