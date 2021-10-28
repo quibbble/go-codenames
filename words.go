@@ -2,12 +2,12 @@ package go_codenames
 
 import "math/rand"
 
-func generateWords(amount int) []string {
+func generateWords(amount int, random *rand.Rand) []string {
 	result := make([]string, 0)
 	for i := 0; i < amount; i++ {
-		word := words[rand.Intn(len(words))]
+		word := words[random.Intn(len(words))]
 		for contains(result, word) {
-			word = words[rand.Intn(len(words))]
+			word = words[random.Intn(len(words))]
 		}
 		result = append(result, word)
 	}

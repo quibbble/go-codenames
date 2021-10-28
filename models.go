@@ -2,9 +2,8 @@ package go_codenames
 
 // Action types
 const (
-	FlipCard = "FlipCard"
-	EndTurn  = "EndTurn"
-	Reset    = "Reset"
+	ActionFlipCard = "FlipCard"
+	ActionEndTurn  = "EndTurn"
 )
 
 // CodenamesOptionDetails allows custom words to be used in the game

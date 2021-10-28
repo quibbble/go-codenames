@@ -5,6 +5,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 	bg "github.com/quibbble/go-boardgame"
 	"github.com/quibbble/go-boardgame/pkg/bgerr"
+	"math/rand"
+	"time"
 )
 
 const (
@@ -17,9 +19,10 @@ const (
 type Codenames struct {
 	state   *state
 	actions []*bg.BoardGameAction
+	seed    int64
 }
 
-func NewCodenames(options bg.BoardGameOptions) (*Codenames, error) {
+func NewCodenames(options bg.BoardGameOptions, seed int64) (*Codenames, error) {
 	if len(options.Teams) < minTeams {
 		return nil, &bgerr.Error{
 			Err:    fmt.Errorf("at least %d teams required to create a game of %s", minTeams, key),
@@ -40,7 +43,7 @@ func NewCodenames(options bg.BoardGameOptions) (*Codenames, error) {
 	}
 	words := details.Words
 	if len(details.Words) == 0 {
-		words = generateWords(wordCount)
+		words = generateWords(wordCount, rand.New(rand.NewSource(seed)))
 	}
 	if len(words) != wordCount {
 		return nil, &bgerr.Error{
@@ -51,12 +54,13 @@ func NewCodenames(options bg.BoardGameOptions) (*Codenames, error) {
 	return &Codenames{
 		state:   newState(options.Teams, words),
 		actions: make([]*bg.BoardGameAction, 0),
+		seed:    seed,
 	}, nil
 }
 
 func (c *Codenames) Do(action bg.BoardGameAction) error {
 	switch action.ActionType {
-	case FlipCard:
+	case ActionFlipCard:
 		var details FlipCardActionDetails
 		if err := mapstructure.Decode(action.MoreDetails, &details); err != nil {
 			return &bgerr.Error{
@@ -68,14 +72,32 @@ func (c *Codenames) Do(action bg.BoardGameAction) error {
 			return err
 		}
 		c.actions = append(c.actions, &action)
-	case EndTurn:
+	case ActionEndTurn:
 		if err := c.state.EndTurn(action.Team); err != nil {
 			return err
 		}
 		c.actions = append(c.actions, &action)
-	case Reset:
-		c.state = newState(c.state.teams, generateWords(wordCount))
+	case bg.ActionReset:
+		seed := time.Now().UnixNano()
+		c.state = newState(c.state.teams, generateWords(wordCount, rand.New(rand.NewSource(seed))))
 		c.actions = make([]*bg.BoardGameAction, 0)
+		c.seed = seed
+	case bg.ActionUndo:
+		if len(c.actions) > 0 {
+			undo, _ := NewCodenames(bg.BoardGameOptions{Teams: c.state.teams}, c.seed)
+			for _, a := range c.actions[:len(c.actions)-1] {
+				if err := undo.Do(*a); err != nil {
+					return err
+				}
+			}
+			c.state = undo.state
+			c.actions = undo.actions
+		} else {
+			return &bgerr.Error{
+				Err:    fmt.Errorf("no actions to undo"),
+				Status: bgerr.StatusInvalidAction,
+			}
+		}
 	default:
 		return &bgerr.Error{
 			Err:    fmt.Errorf("cannot process action type %s", action.ActionType),
@@ -101,4 +123,8 @@ func (c *Codenames) GetSnapshot(team ...string) (*bg.BoardGameSnapshot, error) {
 		},
 		Actions: c.actions,
 	}, nil
+}
+
+func (c *Codenames) GetSeed() int64 {
+	return c.seed
 }

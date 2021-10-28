@@ -12,7 +12,7 @@ To play a game create a new Codenames instance:
 ```go
 game, err := NewCodenames(bg.BoardGameOptions{
     Teams: []string{"TeamA", "TeamB"} // must contain exactly 2 teams
-})
+}, 123)
 ```
 
 To flip a card do the following action:
