@@ -2,6 +2,7 @@ package go_codenames
 
 import (
 	"fmt"
+	bg "github.com/quibbble/go-boardgame"
 	"github.com/quibbble/go-boardgame/pkg/bgerr"
 	"math/rand"
 )
@@ -76,6 +77,29 @@ func (s *state) EndTurn(team string) error {
 	}
 	s.turn = s.otherTeam(s.turn)
 	return nil
+}
+
+func (s *state) targets() []*bg.BoardGameAction {
+	targets := make([]*bg.BoardGameAction, 0)
+	targets = append(targets, &bg.BoardGameAction{
+		Team:       s.turn,
+		ActionType: ActionEndTurn,
+	})
+	for r, row := range s.board.board {
+		for c, card := range row {
+			if !card.Flipped {
+				targets = append(targets, &bg.BoardGameAction{
+					Team:       s.turn,
+					ActionType: ActionFlipCard,
+					MoreDetails: FlipCardActionDetails{
+						Row:    r,
+						Column: c,
+					},
+				})
+			}
+		}
+	}
+	return targets
 }
 
 func (s *state) otherTeam(team string) string {
