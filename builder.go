@@ -15,15 +15,11 @@ func (b *Builder) Create(options *bg.BoardGameOptions) (bg.BoardGame, error) {
 	return NewCodenames(options)
 }
 
-func (b *Builder) Key() string {
-	return key
-}
-
-func (b *Builder) CreateAdvanced(options *bg.BoardGameOptions) (bg.AdvancedBoardGame, error) {
+func (b *Builder) CreateWithNotation(options *bg.BoardGameOptions) (bg.BoardGameWithNotation, error) {
 	return NewCodenames(options)
 }
 
-func (b *Builder) Load(teams []string, notation string) (bg.AdvancedBoardGame, error) {
+func (b *Builder) Load(teams []string, notation string) (bg.BoardGameWithNotation, error) {
 	// split into four - number teams:seed:options:actions
 	splitOne := strings.Split(notation, ":")
 	if len(splitOne) != 4 {
@@ -86,4 +82,8 @@ func (b *Builder) Load(teams []string, notation string) (bg.AdvancedBoardGame, e
 		}
 	}
 	return game, nil
+}
+
+func (b *Builder) Key() string {
+	return key
 }
