@@ -13,9 +13,10 @@ const (
 )
 
 func Test_Codenames(t *testing.T) {
-	codenames, err := NewCodenames(bg.BoardGameOptions{
+	codenames, err := NewCodenames(&bg.BoardGameOptions{
 		Teams: []string{TeamA, TeamB},
-	}, time.Now().UnixNano())
+		Seed:  time.Now().UnixNano(),
+	})
 	if err != nil {
 		t.Error(err)
 		t.FailNow()
@@ -23,7 +24,7 @@ func Test_Codenames(t *testing.T) {
 	codenames.state.turn = TeamA
 
 	// flip card at 0,0
-	err = codenames.Do(bg.BoardGameAction{
+	err = codenames.Do(&bg.BoardGameAction{
 		Team:       TeamA,
 		ActionType: ActionFlipCard,
 		MoreDetails: FlipCardActionDetails{

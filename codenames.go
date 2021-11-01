@@ -20,9 +20,10 @@ type Codenames struct {
 	state   *state
 	actions []*bg.BoardGameAction
 	seed    int64
+	options *CodenamesOptionDetails
 }
 
-func NewCodenames(options bg.BoardGameOptions, seed int64) (*Codenames, error) {
+func NewCodenames(options *bg.BoardGameOptions) (*Codenames, error) {
 	if len(options.Teams) < minTeams {
 		return nil, &bgerr.Error{
 			Err:    fmt.Errorf("at least %d teams required to create a game of %s", minTeams, key),
@@ -43,7 +44,7 @@ func NewCodenames(options bg.BoardGameOptions, seed int64) (*Codenames, error) {
 	}
 	words := details.Words
 	if len(details.Words) == 0 {
-		words = generateWords(wordCount, rand.New(rand.NewSource(seed)))
+		words = generateWords(wordCount, rand.New(rand.NewSource(options.Seed)))
 	}
 	if len(words) != wordCount {
 		return nil, &bgerr.Error{
@@ -54,11 +55,12 @@ func NewCodenames(options bg.BoardGameOptions, seed int64) (*Codenames, error) {
 	return &Codenames{
 		state:   newState(options.Teams, words),
 		actions: make([]*bg.BoardGameAction, 0),
-		seed:    seed,
+		seed:    options.Seed,
+		options: &details,
 	}, nil
 }
 
-func (c *Codenames) Do(action bg.BoardGameAction) error {
+func (c *Codenames) Do(action *bg.BoardGameAction) error {
 	switch action.ActionType {
 	case ActionFlipCard:
 		var details FlipCardActionDetails
@@ -71,12 +73,12 @@ func (c *Codenames) Do(action bg.BoardGameAction) error {
 		if err := c.state.FlipCard(action.Team, details.Row, details.Column); err != nil {
 			return err
 		}
-		c.actions = append(c.actions, &action)
+		c.actions = append(c.actions, action)
 	case ActionEndTurn:
 		if err := c.state.EndTurn(action.Team); err != nil {
 			return err
 		}
-		c.actions = append(c.actions, &action)
+		c.actions = append(c.actions, action)
 	case bg.ActionReset:
 		seed := time.Now().UnixNano()
 		c.state = newState(c.state.teams, generateWords(wordCount, rand.New(rand.NewSource(seed))))
@@ -84,9 +86,9 @@ func (c *Codenames) Do(action bg.BoardGameAction) error {
 		c.seed = seed
 	case bg.ActionUndo:
 		if len(c.actions) > 0 {
-			undo, _ := NewCodenames(bg.BoardGameOptions{Teams: c.state.teams}, c.seed)
+			undo, _ := NewCodenames(&bg.BoardGameOptions{Teams: c.state.teams, Seed: c.seed})
 			for _, a := range c.actions[:len(c.actions)-1] {
-				if err := undo.Do(*a); err != nil {
+				if err := undo.Do(a); err != nil {
 					return err
 				}
 			}
@@ -130,6 +132,20 @@ func (c *Codenames) GetSnapshot(team ...string) (*bg.BoardGameSnapshot, error) {
 	}, nil
 }
 
-func (c *Codenames) GetSeed() int64 {
-	return c.seed
+func (c *Codenames) GetNotation() string {
+	// extra colon is left for MoreOptions which may be utilized in future additions
+	notation := fmt.Sprintf("%d:%d:%s:", len(c.state.teams), c.seed, c.options.encode())
+	for _, action := range c.actions {
+		base := fmt.Sprintf("%d,%d", indexOf(c.state.teams, action.Team), notationActionToInt[action.ActionType])
+		switch action.ActionType {
+		case ActionFlipCard:
+			var details FlipCardActionDetails
+			_ = mapstructure.Decode(action.MoreDetails, &details)
+			base = fmt.Sprintf("%s,%s;", base, details.encode())
+		default:
+			base = fmt.Sprintf("%s;", base)
+		}
+		notation += base
+	}
+	return notation
 }

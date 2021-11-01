@@ -10,14 +10,16 @@ Check out [quibbble.com](https://quibbble.com/codenames) if you wish to view and
 
 To play a game create a new Codenames instance:
 ```go
-game, err := NewCodenames(bg.BoardGameOptions{
-    Teams: []string{"TeamA", "TeamB"} // must contain exactly 2 teams
-}, 123)
+builder := Builder{}
+game, err := builder.Create(&bg.BoardGameOptions{
+    Teams: []string{"TeamA", "TeamB"}, // must contain exactly 2 teams
+    Seed: 123,                         // seed used to generate deterministic randomness
+})
 ```
 
 To flip a card do the following action:
 ```go
-err := game.Do(bg.BoardGameAction{
+err := game.Do(&bg.BoardGameAction{
     Team: "TeamA",
     ActionType: "FlipCard",
     MoreDetails: FlipCardActionDetails{
@@ -29,7 +31,7 @@ err := game.Do(bg.BoardGameAction{
 
 To end your turn do the following action:
 ```go
-err := game.Do(bg.BoardGameAction{
+err := game.Do(&bg.BoardGameAction{
     Team: "TeamA",
     ActionType: "EndTurn",
 })
