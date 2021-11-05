@@ -5,7 +5,9 @@ import (
 	"github.com/mitchellh/mapstructure"
 	bg "github.com/quibbble/go-boardgame"
 	"github.com/quibbble/go-boardgame/pkg/bgerr"
+	"github.com/quibbble/go-boardgame/pkg/bgn"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -132,20 +134,30 @@ func (c *Codenames) GetSnapshot(team ...string) (*bg.BoardGameSnapshot, error) {
 	}, nil
 }
 
-func (c *Codenames) GetNotation() string {
-	// extra colon is left for MoreOptions which may be utilized in future additions
-	notation := fmt.Sprintf("%d:%d:%s:", len(c.state.teams), c.seed, c.options.encode())
+func (c *Codenames) GetBGN() *bgn.Game {
+	tags := map[string]string{
+		"Game":  key,
+		"Teams": strings.Join(c.state.teams, ", "),
+		"Seed":  fmt.Sprintf("%d", c.seed),
+	}
+	if len(c.options.Words) > 0 {
+		tags["Words"] = c.options.encode()
+	}
+	actions := make([]bgn.Action, 0)
 	for _, action := range c.actions {
-		base := fmt.Sprintf("%d,%d", indexOf(c.state.teams, action.Team), notationActionToInt[action.ActionType])
+		bgnAction := bgn.Action{
+			TeamIndex: indexOf(c.state.teams, action.Team),
+			ActionKey: rune(actionToNotation[action.ActionType][0]),
+		}
 		switch action.ActionType {
 		case ActionFlipCard:
-			var details FlipCardActionDetails
-			_ = mapstructure.Decode(action.MoreDetails, &details)
-			base = fmt.Sprintf("%s,%s;", base, details.encode())
-		default:
-			base = fmt.Sprintf("%s;", base)
+			details := action.MoreDetails.(FlipCardActionDetails)
+			bgnAction.Details = details.encode()
 		}
-		notation += base
+		actions = append(actions, bgnAction)
 	}
-	return notation
+	return &bgn.Game{
+		Tags:    tags,
+		Actions: actions,
+	}
 }
