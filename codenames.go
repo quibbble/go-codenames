@@ -151,7 +151,8 @@ func (c *Codenames) GetBGN() *bgn.Game {
 		}
 		switch action.ActionType {
 		case ActionFlipCard:
-			details := action.MoreDetails.(FlipCardActionDetails)
+			var details FlipCardActionDetails
+			_ = mapstructure.Decode(action.MoreDetails, &details)
 			bgnAction.Details = details.encode()
 		}
 		actions = append(actions, bgnAction)
