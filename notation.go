@@ -2,13 +2,14 @@ package go_codenames
 
 import (
 	"fmt"
+	bg "github.com/quibbble/go-boardgame"
 	"github.com/quibbble/go-boardgame/pkg/bgerr"
 	"strconv"
 	"strings"
 )
 
 var (
-	actionToNotation = map[string]string{ActionFlipCard: "f", ActionEndTurn: "e"}
+	actionToNotation = map[string]string{ActionFlipCard: "f", ActionEndTurn: "e", bg.ActionSetWinners: "w"}
 	notationToAction = reverseMap(actionToNotation)
 )
 
@@ -47,6 +48,6 @@ func decodeFlipCardActionDetails(notation []string) (*FlipCardActionDetails, err
 func loadFailure(err error) error {
 	return &bgerr.Error{
 		Err:    err,
-		Status: bgerr.StatusGameLoadFailure,
+		Status: bgerr.StatusBGNDecodingFailure,
 	}
 }
