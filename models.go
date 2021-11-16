@@ -16,7 +16,7 @@ type FlipCardActionDetails struct {
 	Row, Column int
 }
 
-// CodenamesSnapshotDetails are the details unique to codenames
-type CodenamesSnapshotDetails struct {
+// CodenamesSnapshotData is the game data unique to Codenames
+type CodenamesSnapshotData struct {
 	Board [][]*card
 }

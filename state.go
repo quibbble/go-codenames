@@ -24,15 +24,9 @@ func newState(teams []string, words []string) *state {
 }
 
 func (s *state) FlipCard(team string, row, column int) error {
-	if len(s.winners) > 0 {
-		return &bgerr.Error{
-			Err:    fmt.Errorf("%s game already completed", key),
-			Status: bgerr.StatusGameOver,
-		}
-	}
 	if team != s.turn {
 		return &bgerr.Error{
-			Err:    fmt.Errorf("currently %s's turn", s.turn),
+			Err:    fmt.Errorf("%s cannot play on %s turn", team, s.turn),
 			Status: bgerr.StatusWrongTurn,
 		}
 	}
@@ -63,15 +57,9 @@ func (s *state) FlipCard(team string, row, column int) error {
 }
 
 func (s *state) EndTurn(team string) error {
-	if len(s.winners) > 0 {
-		return &bgerr.Error{
-			Err:    fmt.Errorf("%s game already completed", key),
-			Status: bgerr.StatusGameOver,
-		}
-	}
 	if team != s.turn {
 		return &bgerr.Error{
-			Err:    fmt.Errorf("currently %s's turn", s.turn),
+			Err:    fmt.Errorf("%s cannot play on %s turn", team, s.turn),
 			Status: bgerr.StatusWrongTurn,
 		}
 	}

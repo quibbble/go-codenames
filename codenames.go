@@ -62,6 +62,12 @@ func NewCodenames(options *bg.BoardGameOptions) (*Codenames, error) {
 }
 
 func (c *Codenames) Do(action *bg.BoardGameAction) error {
+	if len(c.state.winners) > 0 {
+		return &bgerr.Error{
+			Err:    fmt.Errorf("game already over"),
+			Status: bgerr.StatusGameOver,
+		}
+	}
 	switch action.ActionType {
 	case ActionFlipCard:
 		var details FlipCardActionDetails
@@ -116,7 +122,7 @@ func (c *Codenames) GetSnapshot(team ...string) (*bg.BoardGameSnapshot, error) {
 		Turn:    c.state.turn,
 		Teams:   c.state.teams,
 		Winners: c.state.winners,
-		MoreData: CodenamesSnapshotDetails{
+		MoreData: CodenamesSnapshotData{
 			Board: c.state.board.board,
 		},
 		Targets: targets,
@@ -131,7 +137,7 @@ func (c *Codenames) GetBGN() *bgn.Game {
 		"Seed":  fmt.Sprintf("%d", c.seed),
 	}
 	if len(c.options.Words) > 0 {
-		tags["Words"] = c.options.encode()
+		tags["Words"] = c.options.encodeBGN()
 	}
 	actions := make([]bgn.Action, 0)
 	for _, action := range c.actions {
@@ -143,7 +149,7 @@ func (c *Codenames) GetBGN() *bgn.Game {
 		case ActionFlipCard:
 			var details FlipCardActionDetails
 			_ = mapstructure.Decode(action.MoreDetails, &details)
-			bgnAction.Details = details.encode()
+			bgnAction.Details = details.encodeBGN()
 		case bg.ActionSetWinners:
 			var details bg.SetWinnersActionDetails
 			_ = mapstructure.Decode(action.MoreDetails, &details)

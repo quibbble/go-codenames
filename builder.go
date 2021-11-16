@@ -39,7 +39,7 @@ func (b *Builder) Load(game *bgn.Game) (bg.BoardGameWithBGN, error) {
 	}
 	var details *CodenamesOptionDetails
 	if len(game.Tags["Words"]) > 0 {
-		details = decodeCodenamesOptionDetails(game.Tags["Words"])
+		details = decodeCodenamesOptionDetailsBGN(game.Tags["Words"])
 	}
 	g, err := b.CreateWithBGN(&bg.BoardGameOptions{
 		Teams:       teams,
@@ -61,7 +61,7 @@ func (b *Builder) Load(game *bgn.Game) (bg.BoardGameWithBGN, error) {
 		var details interface{}
 		switch actionType {
 		case ActionFlipCard:
-			result, err := decodeFlipCardActionDetails(action.Details)
+			result, err := decodeFlipCardActionDetailsBGN(action.Details)
 			if err != nil {
 				return nil, err
 			}

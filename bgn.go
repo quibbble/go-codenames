@@ -13,21 +13,21 @@ var (
 	notationToAction = reverseMap(actionToNotation)
 )
 
-func (c *CodenamesOptionDetails) encode() string {
+func (c *CodenamesOptionDetails) encodeBGN() string {
 	return strings.Join(c.Words, ", ")
 }
 
-func decodeCodenamesOptionDetails(notation string) *CodenamesOptionDetails {
+func decodeCodenamesOptionDetailsBGN(notation string) *CodenamesOptionDetails {
 	return &CodenamesOptionDetails{
 		Words: strings.Split(notation, ", "),
 	}
 }
 
-func (f *FlipCardActionDetails) encode() []string {
+func (f *FlipCardActionDetails) encodeBGN() []string {
 	return []string{strconv.Itoa(f.Row), strconv.Itoa(f.Column)}
 }
 
-func decodeFlipCardActionDetails(notation []string) (*FlipCardActionDetails, error) {
+func decodeFlipCardActionDetailsBGN(notation []string) (*FlipCardActionDetails, error) {
 	if len(notation) != 2 {
 		return nil, loadFailure(fmt.Errorf("invalid flip card notation"))
 	}
