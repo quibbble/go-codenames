@@ -20,8 +20,7 @@ const (
 type Codenames struct {
 	state   *state
 	actions []*bg.BoardGameAction
-	seed    int64
-	options *CodenamesOptionDetails
+	options *CodenamesMoreOptions
 }
 
 func NewCodenames(options *bg.BoardGameOptions) (*Codenames, error) {
@@ -36,7 +35,7 @@ func NewCodenames(options *bg.BoardGameOptions) (*Codenames, error) {
 			Status: bgerr.StatusTooManyTeams,
 		}
 	}
-	var details CodenamesOptionDetails
+	var details CodenamesMoreOptions
 	if err := mapstructure.Decode(options.MoreOptions, &details); err != nil {
 		return nil, &bgerr.Error{
 			Err:    err,
@@ -45,7 +44,7 @@ func NewCodenames(options *bg.BoardGameOptions) (*Codenames, error) {
 	}
 	words := details.Words
 	if len(details.Words) == 0 {
-		words = generateWords(wordCount, rand.New(rand.NewSource(options.Seed)))
+		words = generateWords(wordCount, rand.New(rand.NewSource(details.Seed)))
 	}
 	if len(words) != wordCount {
 		return nil, &bgerr.Error{
@@ -56,7 +55,6 @@ func NewCodenames(options *bg.BoardGameOptions) (*Codenames, error) {
 	return &Codenames{
 		state:   newState(options.Teams, words),
 		actions: make([]*bg.BoardGameAction, 0),
-		seed:    options.Seed,
 		options: &details,
 	}, nil
 }
@@ -134,10 +132,11 @@ func (c *Codenames) GetBGN() *bgn.Game {
 	tags := map[string]string{
 		"Game":  key,
 		"Teams": strings.Join(c.state.teams, ", "),
-		"Seed":  fmt.Sprintf("%d", c.seed),
 	}
 	if len(c.options.Words) > 0 {
-		tags["Words"] = c.options.encodeBGN()
+		tags["Words"] = strings.Join(c.options.Words, ", ")
+	} else {
+		tags["Seed"] = fmt.Sprintf("%d", c.options.Seed)
 	}
 	actions := make([]bgn.Action, 0)
 	for _, action := range c.actions {

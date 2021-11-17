@@ -13,7 +13,9 @@ To play a game create a new Codenames instance:
 builder := Builder{}
 game, err := builder.Create(&bg.BoardGameOptions{
     Teams: []string{"TeamA", "TeamB"}, // must contain exactly 2 teams
-    Seed: 123,                         // seed used to generate deterministic randomness
+    MoreOptions: CodenamesMoreOptions{
+        Seed: 123, // seed used to generate deterministic randomness
+    }
 })
 ```
 

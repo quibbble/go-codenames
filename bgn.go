@@ -5,23 +5,12 @@ import (
 	bg "github.com/quibbble/go-boardgame"
 	"github.com/quibbble/go-boardgame/pkg/bgerr"
 	"strconv"
-	"strings"
 )
 
 var (
 	actionToNotation = map[string]string{ActionFlipCard: "f", ActionEndTurn: "e", bg.ActionSetWinners: "w"}
 	notationToAction = reverseMap(actionToNotation)
 )
-
-func (c *CodenamesOptionDetails) encodeBGN() string {
-	return strings.Join(c.Words, ", ")
-}
-
-func decodeCodenamesOptionDetailsBGN(notation string) *CodenamesOptionDetails {
-	return &CodenamesOptionDetails{
-		Words: strings.Split(notation, ", "),
-	}
-}
 
 func (f *FlipCardActionDetails) encodeBGN() []string {
 	return []string{strconv.Itoa(f.Row), strconv.Itoa(f.Column)}

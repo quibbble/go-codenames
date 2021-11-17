@@ -6,9 +6,13 @@ const (
 	ActionEndTurn  = "EndTurn"
 )
 
-// CodenamesOptionDetails allows custom words to be used in the game
-type CodenamesOptionDetails struct {
-	Words []string // must be 25 words in length
+// CodenamesMoreOptions are the additional options for creating a game of Codenames
+type CodenamesMoreOptions struct {
+	// Words must be 25 words in length - optional, one of Words or Seed required
+	Words []string
+
+	// Seed used to generate deterministic randomness - optional, one of Words or Seed required
+	Seed int64
 }
 
 // FlipCardActionDetails is the action details for flipping a card at the desired row and column

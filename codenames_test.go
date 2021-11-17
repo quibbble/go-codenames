@@ -15,7 +15,9 @@ const (
 func Test_Codenames(t *testing.T) {
 	codenames, err := NewCodenames(&bg.BoardGameOptions{
 		Teams: []string{TeamA, TeamB},
-		Seed:  time.Now().UnixNano(),
+		MoreOptions: CodenamesMoreOptions{
+			Seed: time.Now().UnixNano(),
+		},
 	})
 	if err != nil {
 		t.Error(err)

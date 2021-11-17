@@ -29,21 +29,23 @@ func (b *Builder) Load(game *bgn.Game) (bg.BoardGameWithBGN, error) {
 		return nil, loadFailure(fmt.Errorf("missing teams tag"))
 	}
 	teams := strings.Split(teamsStr, ", ")
-	seedStr, ok := game.Tags["Seed"]
-	if !ok {
-		return nil, loadFailure(fmt.Errorf("missing seed tag"))
-	}
-	seed, err := strconv.Atoi(seedStr)
-	if err != nil {
-		return nil, loadFailure(err)
-	}
-	var details *CodenamesOptionDetails
+
+	var details *CodenamesMoreOptions
 	if len(game.Tags["Words"]) > 0 {
-		details = decodeCodenamesOptionDetailsBGN(game.Tags["Words"])
+		details.Words = strings.Split(game.Tags["Words"], ", ")
+	} else {
+		seedStr, ok := game.Tags["Seed"]
+		if !ok {
+			return nil, loadFailure(fmt.Errorf("missing seed or words tag"))
+		}
+		s, err := strconv.Atoi(seedStr)
+		if err != nil {
+			return nil, loadFailure(err)
+		}
+		details.Seed = int64(s)
 	}
 	g, err := b.CreateWithBGN(&bg.BoardGameOptions{
 		Teams:       teams,
-		Seed:        int64(seed),
 		MoreOptions: details,
 	})
 	if err != nil {
