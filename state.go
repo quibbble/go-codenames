@@ -2,6 +2,8 @@ package go_codenames
 
 import (
 	"fmt"
+	"strings"
+
 	bg "github.com/quibbble/go-boardgame"
 	"github.com/quibbble/go-boardgame/pkg/bgerr"
 )
@@ -100,6 +102,17 @@ func (s *state) targets() []*bg.BoardGameAction {
 		}
 	}
 	return targets
+}
+
+func (s *state) message() string {
+	message := fmt.Sprintf("%s must flip a tile or end the turn", s.turn)
+	if len(s.winners) > 0 {
+		message = fmt.Sprintf("%s tie", strings.Join(s.winners, " and "))
+		if len(s.winners) == 1 {
+			message = fmt.Sprintf("%s wins", s.winners[0])
+		}
+	}
+	return message
 }
 
 func (s *state) otherTeam(team string) string {

@@ -2,12 +2,13 @@ package go_codenames
 
 import (
 	"fmt"
+	"math/rand"
+	"strings"
+
 	"github.com/mitchellh/mapstructure"
 	bg "github.com/quibbble/go-boardgame"
 	"github.com/quibbble/go-boardgame/pkg/bgerr"
 	"github.com/quibbble/go-boardgame/pkg/bgn"
-	"math/rand"
-	"strings"
 )
 
 const (
@@ -125,6 +126,7 @@ func (c *Codenames) GetSnapshot(team ...string) (*bg.BoardGameSnapshot, error) {
 		},
 		Targets: targets,
 		Actions: c.actions,
+		Message: c.state.message(),
 	}, nil
 }
 
